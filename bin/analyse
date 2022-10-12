@@ -9,6 +9,7 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 $cacheDirectory = $argv[1] ?? null;
 $filteredUrl = $argv[2] ?? null;
+$raw = $argv[3] ?? null;
 
 if (!$cacheDirectory) {
     throw new \RuntimeException('Please provide a cache directory as first argument.');
@@ -92,6 +93,7 @@ foreach (files($directory) as $file) {
                 'fos-smaxage-backup' => \implode(', ', (array) ($unmarshalled['value']['non-varying']['headers']['fos-smaxage-backup'] ?? [])),
                 'queries' => [],
                 'tags' => [],
+                'raw' => $unmarshalled,
             ];
         }
 
@@ -129,6 +131,10 @@ foreach ($uris as &$uri) {
 
     foreach ($uri['queries'] as $query) {
         echo ' - ' . $query . PHP_EOL;
+    }
+
+    if ($raw) {
+        echo 'RAW: ' . \json_encode($uri['raw'], \JSON_PRETTY_PRINT) . \PHP_EOL;
     }
 
     echo \PHP_EOL;

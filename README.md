@@ -47,3 +47,10 @@ It is also possible to filter out a specific url only:
 ```bash
 vendor/bin/analyse var/http_cache https://example.org/other
 ```
+
+For a single url its also possible to get the raw unmarshalled ata via
+which shows you all headers and other infos:
+
+```bash
+vendor/bin/analyse var/http_cache https://example.org/other --raw
+```
