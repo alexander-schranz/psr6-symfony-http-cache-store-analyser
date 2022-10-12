@@ -14,7 +14,7 @@ Copy your `http_cache` directory into `var` directory so its available under `va
 Run the analyser:
 
 ```bash
-bin/analyse
+bin/analyse var/http_cache
 ```
 
 Output is something like this:
@@ -43,8 +43,8 @@ QUERIES (1):
 
 ```
 
-It is also possible to filter out a specific url:
+It is also possible to filter out a specific url only:
 
 ```bash
-bin/analyse https://example.org/other
+bin/analyse var/http_cache https://example.org/other
 ```

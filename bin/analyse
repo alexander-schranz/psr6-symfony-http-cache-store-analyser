@@ -7,7 +7,12 @@ use Toflar\Psr6HttpCacheStore\Psr6Store;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$cacheDirectory = dirname(__DIR__) . '/var/http_cache';
+$cacheDirectory = $argv[1] ?? null;
+$filteredUrl = $argv[2] ?? null;
+
+if (!$cacheDirectory) {
+    throw new \RuntimeException('Please provide a cache directory as first argument.');
+}
 
 $store = new Psr6Store(['cache_directory' => $cacheDirectory]);
 
@@ -21,7 +26,6 @@ $cache = $propertyReflection->getValue($store);
 $directory = new \RecursiveDirectoryIterator($cacheDirectory);
 $tagMarshaller = new TagAwareMarshaller();
 
-$filteredUrl = $argv[1] ?? null;
 
 function files(\RecursiveDirectoryIterator $directory)
 {

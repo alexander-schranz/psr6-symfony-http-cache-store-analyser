@@ -14,8 +14,9 @@
             "email": "alexander@sulu.io"
         }
     ],
+    "bin": ["bin/analyse"],
     "require": {
-        "php": "^7.4",
+        "php": "^7.4 || ^8.0",
         "symfony/cache": "^5.4 || ^6.0",
         "toflar/psr6-symfony-http-cache-store": "^3.0 || ^4.0"
     },
