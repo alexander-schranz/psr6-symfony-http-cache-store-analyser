@@ -1,12 +1,11 @@
 # PSR6 Symfony HTTP Cache Store Analyser
 
-Analyse what URL and Tags are stored in [toflar/psr6-symfony-http-cache-store](github.com/toflar/psr6-symfony-http-cache-store) HTTP Cache store.
+Analyse what URL and Tags are stored in [toflar/psr6-symfony-http-cache-store](https://github.com/toflar/psr6-symfony-http-cache-store) HTTP Cache store.
 
 ## Usage
 
 ```bash
-git clone git@github.com:alexander-schranz/psr6-symfony-http-cache-store-analyser.git analyser
-cd analyser
+composer require schranz/psr6-symfony-http-cache-store-analyser
 ```
 
 Copy your `http_cache` directory into `var` directory so its available under `var/http_cache/@`.
@@ -14,7 +13,7 @@ Copy your `http_cache` directory into `var` directory so its available under `va
 Run the analyser:
 
 ```bash
-bin/analyse var/http_cache
+vendor/bin/analyse var/http_cache
 ```
 
 Output is something like this:
@@ -46,5 +45,5 @@ QUERIES (1):
 It is also possible to filter out a specific url only:
 
 ```bash
-bin/analyse var/http_cache https://example.org/other
+vendor/bin/analyse var/http_cache https://example.org/other
 ```
