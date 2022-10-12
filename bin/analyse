@@ -1,0 +1,130 @@
+#!/usr/bin/env php
+<?php
+
+use Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter;
+use Symfony\Component\Cache\Marshaller\TagAwareMarshaller;
+use Toflar\Psr6HttpCacheStore\Psr6Store;
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+$cacheDirectory = dirname(__DIR__) . '/var/http_cache';
+
+$store = new Psr6Store(['cache_directory' => $cacheDirectory]);
+
+$reflection = new \ReflectionClass($store);
+$propertyReflection = $reflection->getProperty('cache');
+$propertyReflection->setAccessible(true);
+
+/** @var FilesystemTagAwareAdapter $cache */
+$cache = $propertyReflection->getValue($store);
+
+$directory = new \RecursiveDirectoryIterator($cacheDirectory);
+$tagMarshaller = new TagAwareMarshaller();
+
+$filteredUrl = $argv[1] ?? null;
+
+function files(\RecursiveDirectoryIterator $directory)
+{
+    foreach ($directory as $file) {
+        if (\in_array($file->getFilename(), ['.', '..'], true)) {
+            continue;
+        }
+
+        /** @var \SplFileInfo $file */
+        if ($file->isDir()) {
+            yield from files(new \RecursiveDirectoryIterator($file->getPathname()));
+
+            continue;
+        }
+
+        yield $file;
+    }
+}
+
+$uris = [];
+
+foreach (files($directory) as $file) {
+    $pathName = $file->getPathname();
+
+    $content = file_get_contents($pathName);
+
+    $contentParts = \explode(\PHP_EOL, $content, 2);
+
+    $validUntil = (int) $contentParts[0];
+
+    if (str_starts_with($contentParts[1], 'write-operations-counter')) {
+        continue;
+    }
+
+    if (1918049330 < $validUntil || $validUntil < 946681200) {
+        throw new \RuntimeException('Unexpected valid until: ' . $validUntil);
+    }
+
+    $content = $contentParts[1];
+
+    $contentParts = \explode(\PHP_EOL, $content, 2);
+    $hash = $contentParts[0];
+    $content = $contentParts[1];
+
+    if (\str_starts_with($hash, 'md')) {
+        $type = 'md';
+
+        $unmarshalled = $tagMarshaller->unmarshall($content);
+
+        $uri = ($unmarshalled['value']['non-varying']['uri']);
+        $uriParts = \explode('?', $uri, 2);
+        $url = $uriParts[0];
+        $query = $uriParts[1] ?? '';
+
+        if ($filteredUrl && $url !== $filteredUrl) {
+            continue;
+        }
+
+        if (!isset($uris[$url])) {
+            $uris[$url] = [
+                'url' => $url,
+                'queries' => [],
+                'tags' => [],
+            ];
+        }
+
+        $uris[$url]['queries'][] = isset($uriParts[1]) ? '?' . $query : '';
+
+        $uris[$url]['queries'] = \array_unique($uris[$url]['queries']);
+        sort($uris[$url]['queries']);
+
+        foreach ($unmarshalled['tags'] as $tag) {
+            $uris[$url]['tags'][] = $tag;
+            $uris[$url]['tags'] = \array_unique($uris[$url]['tags']);
+        }
+
+        continue;
+    } elseif (\str_starts_with($hash, 'en')) {
+        $type = 'en';
+
+        // TODO check what `en` is and if it is required to be  also analyzed
+
+        continue;
+    }
+
+    throw new \RuntimeException('Unknown type: ' . $hash);
+}
+
+\ksort($uris);
+
+foreach ($uris as &$uri) {
+    echo 'URL: ' . $uri['url'] . \PHP_EOL;
+    echo 'TAGS (' . \count($uri['tags']) . '): ' . \implode(',', $uri['tags']) .  \PHP_EOL;
+    echo 'QUERIES (' . \count($uri['queries']) . '): ' . \PHP_EOL;
+
+    foreach ($uri['queries'] as $query) {
+        echo ' - ' . $query . PHP_EOL;
+    }
+
+    echo \PHP_EOL;
+
+    echo '------------------------------------------------------------------------------------------------';
+
+    echo \PHP_EOL;
+    echo \PHP_EOL;
+}
