@@ -89,6 +89,7 @@ foreach (files($directory) as $file) {
             $uris[$url] = [
                 'url' => $url,
                 'cache-control' => \implode(', ', (array) ($unmarshalled['value']['non-varying']['headers']['cache-control'] ?? [])),
+                'expires' => \implode(', ', (array) ($unmarshalled['value']['non-varying']['headers']['expires'] ?? [])),
                 'x-reverse-proxy-ttl' => \implode(', ', (array) ($unmarshalled['value']['non-varying']['headers']['x-reverse-proxy-ttl'] ?? [])),
                 'fos-smaxage-backup' => \implode(', ', (array) ($unmarshalled['value']['non-varying']['headers']['fos-smaxage-backup'] ?? [])),
                 'queries' => [],
@@ -124,6 +125,7 @@ foreach (files($directory) as $file) {
 foreach ($uris as &$uri) {
     echo 'URL: ' . $uri['url'] . \PHP_EOL;
     echo 'CACHE-CONTROL: ' . $uri['cache-control'] . \PHP_EOL;
+    echo 'EXPIRES: ' . $uri['expires'] . \PHP_EOL;
     echo 'X-REVERSE-PROXY-TTL: ' . $uri['x-reverse-proxy-ttl'] . \PHP_EOL;
     echo 'FOS-SMAXAGE-BACKUP: ' . $uri['fos-smaxage-backup'] . \PHP_EOL;
     echo 'TAGS (' . \count($uri['tags']) . '): ' . \implode(',', $uri['tags']) .  \PHP_EOL;

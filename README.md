@@ -21,6 +21,7 @@ Output is something like this:
 ```bash
 URL: https://example.org/
 CACHE-CONTROL: max-age=240, public, s-maxage=86400
+EXPIRES: Sat, 15 Oct 2022 21:56:32 GMT
 X-REVERSE-PROXY-TTL: 86400
 FOS-SMAXAGE-BACKUP: 240
 TAGS (2): media-1,page-2
@@ -34,6 +35,7 @@ QUERIES (4):
 
 URL: https://example.org/other
 CACHE-CONTROL: max-age=240, public, s-maxage=86400
+EXPIRES: Sat, 15 Oct 2022 21:56:32 GMT
 X-REVERSE-PROXY-TTL: 86400
 FOS-SMAXAGE-BACKUP: 240
 TAGS (1): media-2
